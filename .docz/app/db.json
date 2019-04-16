@@ -1,0 +1,35 @@
+{
+  "config": {
+    "title": "My Blog",
+    "description": "My awesome app using docz",
+    "menu": [],
+    "version": "1.0.0",
+    "repository": null,
+    "native": false,
+    "codeSandbox": true,
+    "themeConfig": {},
+    "separator": "-"
+  },
+  "props": [],
+  "entries": [
+    {
+      "key": "blogs/nothing.mdx",
+      "value": {
+        "name": "Nothing to say",
+        "id": "26c13e05e93df671dc9cd589d8c16dee",
+        "filepath": "blogs/nothing.mdx",
+        "link": "",
+        "slug": "blogs-nothing",
+        "route": "/blogs-nothing",
+        "menu": "",
+        "headings": [
+          {
+            "slug": "虾虾侬",
+            "depth": 1,
+            "value": "虾虾侬"
+          }
+        ]
+      }
+    }
+  ]
+}
