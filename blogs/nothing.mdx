@@ -1,9 +1,57 @@
 ---
 
-name: Nothing to say
+Immutable 在 JavaScript 中的应用
 
 ---
 
-# 虾虾侬
+# Mutable
 
-四月是你的谎言
+在 JavaScript 中，对象是引用类型的数据，其优点在于频繁的修改对象时都是在原对象的基础上修改，并不需要重新创建，这样可以有效的利用内存，不会造成内存空间的浪费，对象的这种特性可以称之为 Mutable，中文的字面意思是「可变」。
+对于 Mutable 的对象，其灵活多变的优点有时可能会成为其缺点，越是灵活多变的数据越是不好控制，对于一个复杂结构的对象来说，一不小心就在某个不经意间修改了数据，假如该对象又在多个作用域中用到，此时很难预见到数据是否改变以及何时改变的。
+
+```
+var obj = { /* 一个复杂结构的对象 */ };
+doSomething(obj);
+
+```
+针对这种问题，常规的解决办法可以通过将对象进行深拷贝的形式复制出一个新的对象，再在新对象上做修改的操作，这样能确保数据的可控性，但是频繁的复制会造成内存空间的大量浪费。
+
+```
+var obj = { /* 一个复杂结构的对象 */ };
+// copy 出一个新的 obj2
+// 但是 copy 操作会浪费内存空间
+var obj2 = deepClone(obj);
+doSomething(obj2);
+// 上面的函数之行完后，无论 obj2 是否变化，obj 肯定还是原来那个 obj
+
+```
+
+## Immutable对象
+
+为了能更好的解决上述的问题，出现了 Immutable 对象，Immutable 从字面上翻译成中文是「不可变」。每次修改一个 Immutable 对象时都会创建一个新的不可变的对象，在新对象上操作并不会影响到原对象的数据。这种特殊的对象并不是 JavaScript 新出的功能特性，而是业界为了解决这种问题提供的一套解决方案，并且涌现出了一些优秀的开源类库，其中最有名的就是 Facebook 的 Lee Byron 开源的 immutable.js。当然，Immutable 的这种解决方案并不是独创的，而是来源于 Clojure 和 Scala。
+
+## Mutable 和 Immutable 的性能对比
+
+对于 Mutable 的对象的低效率操作主要体现在复制和比较上，而 Immutable 对象就是解决了这两大低效的痛点。
+普通的 Mutable 对象的深拷贝操作会将一整份数据都复制一遍，而 Immutable 对象在修改数据时并不会复制一整份数据，而是将变化的节点与未变化的节点的父子关系转移到一个新节点上，类似于链表的结构。从 “复制” 的角度来看，做到了最小化的复制，未变化的部分都是共享的，Mutable 在复制的时候是 “全量”，而 Immutable 复制的是 “增量”，对于内存空间的使用率的比较高低立判。
+并且基于每次修改一个 Immutable 对象都会创建一个新的 Immutable 对象的这种特性可以将数据的修改状态保存成一组快照，这也是挺方便的。
+再来说说比较操作。对于 Mutable 的对象，如果要比较两个对象是否相等，必须遍历对象的每个节点进行比较，对于结构复杂的对象来说，其效率肯定高不到哪去。对于 Immutable 对象，immutable.js 提供了直接判断两个 Immutable 对象的「值」是否相等的 API。
+
+```
+var map1 = Immutable.Map({a:1, b:1, c:1});
+var map2 = Immutable.Map({a:1, b:1, c:1});
+assert(map1 !== map2); // 不同的 Immutable 实例，此时比较的是引用地址
+assert(Immutable.is(map1, map2)); // map1 和 map2 的值相等，比较的是值
+assert(map1.equals(map2)); // 与 Immutable.is 的作用一样
+
+```
+
+在实际的开发应用中，性能并不总是最关键和重要的，对于普通的 JavaScript 的项目来说，由于 Immutable 的特性带来的数据的可控性比起性能来说更有优势，对于 Mutable 对象适合在封闭的作用域小范围使用，而 Immutable 对象适合数据需要跨多个作用域传递时使用。
+
+## Mutable 和 Immutable 在使用上的区别
+
+immutable.js 提供了多种 Immutable 的数据结构：包含了 List Stack Map OrderedMap Set OrderedSet Record，这些数据结构与原生的 Mutable 的数据结构大致对应。
+各数据结构的用法这里不细说，主要说说 Immutable 对象与 Mutable 对象在使用上的区别吧。
+原生的 Mutable 对象在「读」和「写」上非常方便。
+
+> 如果是原生的 Mutable 对象，在链式访问一个深层级的数据时可能会报对象 undefined 的错误，而 Immutable 对象在碰到这种情况时不会报错，返回的是 undefined。在调试的时候，如果想查看一个 Immutable 对象的内部结构，建议使用 toJSON() 先转换为普通的 Mutable 对象。
